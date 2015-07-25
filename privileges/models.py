@@ -1,9 +1,8 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
-
-from django.contrib.auth.models import User
 
 from privileges.registration import registry
 
@@ -20,8 +19,8 @@ class Privilege(models.Model):
 
 class Grant(models.Model):
 
-    grantor = models.ForeignKey(User, related_name="grants_given")
-    grantee = models.ForeignKey(User, related_name="grants_received")
+    grantor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="grants_given")
+    grantee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="grants_received")
     start = models.DateTimeField(default=datetime.datetime.now)
     end = models.DateTimeField(null=True, blank=True)
     privilege = models.ForeignKey(Privilege)
