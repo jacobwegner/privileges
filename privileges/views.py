@@ -24,8 +24,10 @@ def owner_required(view_func):
         path = request.build_absolute_uri()
         login_scheme, login_netloc = urlparse.urlparse(settings.LOGIN_URL)[:2]
         current_scheme, current_netloc = urlparse.urlparse(path)[:2]
-        if ((not login_scheme or login_scheme == current_scheme) and
-            (not login_netloc or login_netloc == current_netloc)):
+        if (
+            (not login_scheme or login_scheme == current_scheme) and
+            (not login_netloc or login_netloc == current_netloc)
+        ):
             path = request.get_full_path()
         from django.contrib.auth.views import redirect_to_login
         return redirect_to_login(path, redirect_field_name=REDIRECT_FIELD_NAME)
@@ -40,7 +42,7 @@ def cbv_decorator(decorator):
 
 
 class UsernameContextMixin(object):
-    
+
     def get_context_data(self, **kwargs):
         context = super(UsernameContextMixin, self).get_context_data(**kwargs)
         context.update({
@@ -52,7 +54,7 @@ class UsernameContextMixin(object):
 @cbv_decorator(owner_required)
 class GrantListView(UsernameContextMixin, ListView):
     model = Grant
-    
+
     def get_queryset(self):
         username = self.kwargs["username"]
         return super(GrantListView, self).get_queryset().filter(
@@ -64,14 +66,14 @@ class GrantListView(UsernameContextMixin, ListView):
 class GrantCreateView(UsernameContextMixin, CreateView):
     model = Grant
     form_class = GrantForm
-    
+
     def get_form_kwargs(self):
         kwargs = super(GrantCreateView, self).get_form_kwargs()
         kwargs.update({
             "user": self.request.user
         })
         return kwargs
-    
+
     def get_success_url(self):
         return reverse(
             "privileges_grant_list",
@@ -83,14 +85,14 @@ class GrantCreateView(UsernameContextMixin, CreateView):
 class GrantUpdateView(UsernameContextMixin, UpdateView):
     model = Grant
     form_class = GrantForm
-    
+
     def get_form_kwargs(self):
         kwargs = super(GrantUpdateView, self).get_form_kwargs()
         kwargs.update({
             "user": self.request.user
         })
         return kwargs
-    
+
     def get_success_url(self):
         return reverse(
             "privileges_grant_list",
@@ -101,11 +103,9 @@ class GrantUpdateView(UsernameContextMixin, UpdateView):
 @cbv_decorator(owner_required)
 class GrantDeleteView(UsernameContextMixin, DeleteView):
     model = Grant
-    
+
     def get_success_url(self):
         return reverse(
             "privileges_grant_list",
             kwargs={"username": self.request.user.username}
         )
-
-
