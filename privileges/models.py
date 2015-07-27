@@ -1,8 +1,7 @@
-import datetime
-
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from privileges.registration import registry
 
@@ -21,11 +20,11 @@ class Grant(models.Model):
 
     grantor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="grants_given")
     grantee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="grants_received")
-    start = models.DateTimeField(default=datetime.datetime.now)
+    start = models.DateTimeField(default=timezone.now)
     end = models.DateTimeField(null=True, blank=True)
     privilege = models.ForeignKey(Privilege)
     redelegate_count = models.IntegerField(default=0)
-    date_created = models.DateTimeField(default=datetime.datetime.now)
+    date_created = models.DateTimeField(default=timezone.now)
 
     def __unicode__(self):
         return u"%s grants '%s' privilege to %s" % (
@@ -37,7 +36,7 @@ def has_privilege(user, privilege):
     if not hasattr(user, "grants_received"):
         return False
 
-    now = datetime.datetime.now()
+    now = timezone.now()
 
     return user.grants_received.filter(
         privilege__label__iexact=privilege,
